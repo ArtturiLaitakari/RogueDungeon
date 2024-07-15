@@ -3,27 +3,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Health manager for characters.
+/// </summary>
 public class Health : MonoBehaviour
 {
-    public int maxHealth=3;
+    public int maxHealth = 3;
     public GameObject splintering;
     public Color damageColor = Color.red;
     public float damageFlashTime = 1f;
 
-    private int currentHealth=3;
-    private int woundCount; // serious damage slows character down, TODO
+    public int currentHealth;
+    public int fatiqueLevel = 0;
     private Color originalColor;
     private Color fadingColor;
     private float t;
     private MeshRenderer[] meshRenderers;
-    bool dead = false;
+    public bool dead = false;
 
-    // Start is called before the first frame update
+    public int GetFatique() => fatiqueLevel;
+    public AudioSource audioSource;
+
     void Start()
     {
-        currentHealth = maxHealth;
-
-        // Käytä rekursiivista funktiota kaikkien MeshRenderer-objektien löytämiseen
         meshRenderers = FindAllMeshRenderers(gameObject).ToArray();
 
         if (meshRenderers.Length > 0)
@@ -32,17 +34,40 @@ public class Health : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("No MeshRenderer found in the hierarchy.");
+            originalColor = Color.white;
         }
 
-        originalColor = meshRenderers[0].material.color;
+        currentHealth = maxHealth;
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) throw new Exception("puuttuu" + gameObject.name);
+        audioSource.volume = 0.5f;
+        audioSource.spatialBlend = 1;
+        audioSource.rolloffMode = AudioRolloffMode.Linear;
+        audioSource.loop = false;
     }
 
+    /// <summary>
+    /// Sets character Health, current and max
+    /// </summary>
+    /// <param name="current"></param>
+    /// <param name="max"></param>
+    public void Sethealth(int current, int max)
+    {
+        currentHealth = current;
+        maxHealth = max;
+    }
+
+    /// <summary>
+    /// Handle when character takes damage
+    /// </summary>
+    /// <param name="damage">damage amount</param>
     public void ReduceHealth(int damage)
     {
+        Debug.Log(gameObject.name + " reduce health");
         StartCoroutine(DamageFlash());
         currentHealth -= damage;
-        if (gameObject.tag == "Player") GameController.instance.SetHealth(currentHealth, maxHealth);
+        if (gameObject.tag == "Player")
+            GameController.instance.SetHealth(currentHealth, maxHealth);
 
         if (currentHealth <= 0 && !dead)
         {
@@ -50,13 +75,22 @@ public class Health : MonoBehaviour
             if (gameObject.tag == "Enemy") GameController.instance.EnemyDestroyed();
             Instantiate(splintering, transform.position, new Quaternion());
             Destroy(gameObject);
+        } else if(!dead) audioSource.Play();
+
+        // may happen, should not
+        if (currentHealth < 0 && gameObject != null)
+        {
+            dead = true;
+            Destroy(gameObject);
         }
     }
 
+    /// <summary>
+    /// Coroutine that flashes the object with a damage color for a specified duration.
+    /// </summary>
+    /// <returns>Returns an IEnumerator that can be used to control the coroutine.</returns>
     private IEnumerator DamageFlash()
     {
-        // Aseta väri damageColoriksi kerran ennen silmukkaa
-
         float t = damageFlashTime;
         while (t > 0)
         {
@@ -75,6 +109,7 @@ public class Health : MonoBehaviour
     /// <param name="originalColor">The original color to which the MeshRenderer colors will be reset.</param>
     private void ResetMeshColors(IEnumerable<MeshRenderer> meshRenderers, Color originalColor)
     {
+
         foreach (MeshRenderer r in meshRenderers)
         {
             r.material.color = originalColor;
@@ -102,19 +137,24 @@ public class Health : MonoBehaviour
         {
             meshRenderers.AddRange(FindAllMeshRenderers(child.gameObject));
         }
-
         return meshRenderers;
     }
 
 
     public int ShowHealth() => currentHealth;
 
-    public void SetHealth(int h) => currentHealth = h;
-
     public int GetHealth() => currentHealth;
+    public int GetWounds() => (maxHealth - currentHealth);
+    public void AddFatique() => fatiqueLevel++;
+    public void HealFatique() 
+    {
+        if (fatiqueLevel > 0) fatiqueLevel--;
+    }
 
-    public void AddHealth(int h) => currentHealth += h;
+    public void AddHealth(int h=1) 
+    {
+        if (currentHealth < maxHealth) currentHealth += h;
+    }
 
     public int MaxHealth() => maxHealth;
-
 }

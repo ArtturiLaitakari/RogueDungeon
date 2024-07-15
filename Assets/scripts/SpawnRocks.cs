@@ -1,8 +1,9 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+
+/// <summary>
+/// Make ruins to the game area
+/// </summary>
 
 public class SpawnRocks : MonoBehaviour
 {

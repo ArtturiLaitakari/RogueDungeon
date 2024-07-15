@@ -1,6 +1,8 @@
-using System.Security.Cryptography;
 using UnityEngine;
 
+/// <summary>
+/// Follow player camera controller
+/// </summary>
 public class FollowPlayer : MonoBehaviour
 {
     private Transform target; // Aseta tämä kameran seuraaman pelaajan Transform
@@ -14,17 +16,21 @@ public class FollowPlayer : MonoBehaviour
 
     private GameObject player;
 
+    /// <summary>
+    /// LateUpdate is called every frame, after all Update functions have been called.
+    /// It is used here to update the camera position and orientation based on the 
+    /// player's position and user input for toggling between 
+    /// isometric and third-person views.
+    /// </summary>
     void LateUpdate()
     {
         if (player == null)
         {
             player = GameObject.FindWithTag("Player");
-            target = player.transform;
+            if (player != null) target = player.transform;
         }
         else
         {
-            // Aseta kameran sijainti pelaajan sijainnin mukaan
-
             if (!isometric)
             {
                 ThirdPersonUpdate();
@@ -37,6 +43,7 @@ public class FollowPlayer : MonoBehaviour
         if (Input.GetButtonDown("ToggleView"))
         {
             isometric = !isometric;
+            GameController.instance.Isometric = isometric;
             if (isometric)
             {
                 transform.rotation = Quaternion.Euler(isometricAngle, transform.rotation.y, transform.rotation.z);
@@ -45,6 +52,10 @@ public class FollowPlayer : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Updates the camera position and rotation in third-person view based on 
+    /// the player's position and orientation.
+    /// </summary>
     private void ThirdPersonUpdate()
     {
         if (target == null) { return; }

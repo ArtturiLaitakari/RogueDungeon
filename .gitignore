@@ -1,0 +1,20 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Library
+/Logs
+/obj/Debug
+/Packages
+/ProjectSettings
+/UserSettings
+/.editorconfig
+/.vsconfig
+/Assembly-CSharp-Editor.csproj
+/Assembly-CSharp.csproj
+/Meryel.CodeAssist.Editor.csproj
+/UpgradeLog.htm
+/Assets/Plugins
+/Assets/TextMesh Pro
+/.vs/RogueDungeon/FileContentIndex
+/.vs/RogueDungeon/v17

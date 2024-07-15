@@ -1,21 +1,15 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Security.Cryptography;
-using System.Threading;
 using UnityEngine;
 
 public class AIControllers : MonoBehaviour
 {
     private Rigidbody rb;
-    private Animator animator;
     public float movementSpeed;
     public float turningSpeed;
-    public float manaRestore;
+    public float attackDelay=2;
 
     public float detectRange = 15f;
+    public float attackRange=10f;
     public float stoppingRange = 3f;
     public float switchTargetRange = 2f;
     public float switchDistance = 10f;
@@ -24,7 +18,7 @@ public class AIControllers : MonoBehaviour
     public GameObject projectile;
     public Transform muzzle;
     public bool melee = false;
-    public Color debugColor;
+    public IAnimationController animationController;
 
     private float Velocity;
     private bool isMovingForward = true;
@@ -43,12 +37,12 @@ public class AIControllers : MonoBehaviour
     void Start()
     {
         rb = GetComponent <Rigidbody> ();
-        animator = GetComponentInChildren<Animator>();
         AIt = 0f;
         Pt = 0f;
         obstacleMask = LayerMask.GetMask("Obstacle");
         state = State.forward;
         nextState = State.forward;
+        animationController = GetComponent<IAnimationController> ();
     }
 
     /// <summary>
@@ -109,10 +103,21 @@ public class AIControllers : MonoBehaviour
         return rayhit;
     }
 
+    /// <summary>
+    /// Called when the Collider other has stopped touching the trigger.
+    /// Sets the next state to 'forward'.
+    /// </summary>
+    /// <param name="other">The Collider that has exited the trigger.</param>
     private void OnTriggerExit(Collider other)
     {
         nextState = State.forward;
     }
+
+    /// <summary>
+    /// Called when this collider/rigidbody has begun touching another rigidbody/collider.
+    /// Sets the state to 'back' if the collision is with an obstacle or wall.
+    /// </summary>
+    /// <param name="collision">The Collision data associated with this collision event.</param>
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -122,6 +127,10 @@ public class AIControllers : MonoBehaviour
         state = State.back;
     }
 
+    /// <summary>
+    /// Controls the behavior of the object based on its current state.
+    /// </summary>
+    /// <param name="state">The current state of the object.</param>
     private void StateMachine(State state)
     {
         // liikutaan pelaajaa kohti
@@ -177,18 +186,21 @@ public class AIControllers : MonoBehaviour
             target += new Vector3(randomX, 0f, randomZ);
         }
         Pt -= Time.deltaTime;
-        // etsit‰‰n pelaaja
         if (targetObject != null)
         {
             if(Vector3.Distance(transform.position, targetObject.transform.position) < detectRange) { // range of visibility
               if (!Physics.Linecast(transform.position, targetObject.transform.position, obstacleMask)) // line of visibility
               {
                 target = targetObject.transform.position;
-                UnityEngine.Debug.Log("Vihollinen n‰kee pelaajan");
 
-                if (Pt < 0)
+                if (Vector3.Distance(target, transform.position) < attackRange)
                 {
-                    FireProjectile();
+                    // Hyˆkk‰‰ vasta, kun et‰isyys on pienempi kuin attackRange
+                    if (Pt < 0)
+                    {
+                        if (!melee) FireProjectile();
+                        else MeleeAttack(); 
+                    }
                 }
                 if (Vector3.Distance(target, transform.position) < stoppingRange )
                 {
@@ -203,6 +215,8 @@ public class AIControllers : MonoBehaviour
         }
     }
 
+
+
     /// <summary>
     /// Instantiates a projectile at the muzzle position and rotation.
     /// </summary>
@@ -210,7 +224,15 @@ public class AIControllers : MonoBehaviour
     {
         GameObject p = Instantiate(projectile, muzzle.position, muzzle.rotation);
         p.GetComponent<Fireball>().shooterTag = tag;
-        Pt = manaRestore;
+        Pt = attackDelay;
+    }
+    /// <summary>
+    /// Activate attack melee animation
+    /// </summary>
+    void MeleeAttack()
+    {
+        Pt = attackDelay;
+        animationController.Attack();
     }
 
     /// <summary>
@@ -218,21 +240,28 @@ public class AIControllers : MonoBehaviour
     /// </summary>
     /// <param name="movement">The intensity of movement (0 to 1).</param>
     /// <param name="isForward">Whether the movement is forward (true) or backward (false).</param>
-    void ActivateAnimation(float movement, bool isForward = true)
+    void MoveAnimation(float movement, bool isForward = true)
     {
         this.Velocity = Mathf.Clamp01(movement);
-        animator.SetFloat("Velocity", this.Velocity);
-        animator.SetFloat("Speed", isForward ? 1 : -1); // Muuta Animation Speed -parametri
+        animationController.Move(this.Velocity, isForward);
     }
 
+    /// <summary>
+    /// Moves the object based on the input value.
+    /// </summary>
+    /// <param name="input">The movement input, where positive values move the object forward and negative values move it backward.</param>
     private void Move(float input)
     {
         Vector3 movement = transform.forward * input;
         isMovingForward = input > 0;
         rb.velocity = movement * movementSpeed;
-        ActivateAnimation(rb.velocity.magnitude, isMovingForward);
+        MoveAnimation(rb.velocity.magnitude, isMovingForward);
     }
 
+    /// <summary>
+    /// Rotates the object based on the input value.
+    /// </summary>
+    /// <param name="input">The turning input, where positive values rotate the object to the right and negative values rotate it to the left.</param>
     private void Turning(float input)
     {
         Vector3 turning = Vector3.up * input;

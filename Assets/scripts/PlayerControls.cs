@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Security.Cryptography;
+using System;
 using UnityEngine;
 
 public class PlayerControllers : MonoBehaviour
@@ -10,21 +6,112 @@ public class PlayerControllers : MonoBehaviour
     private Rigidbody rb;
     private Animator animator;
     public float movementSpeed;
-    public float turningSpeed;
+    private float turningSpeed;
     public float manaRestore;
 
-    public GameObject fireball;
     public Transform muzzle;
+    public AudioSource audiosource;
+    public float multiplier=200f;
 
+    private float meleeDamageTime;
+    private float defenseMana = 2;
     private float Velocity;
     private bool isMovingForward = true;
     private float t;
+    private float tMelee;
+    private float currentSpeed=0;
+    private Health health;
+    public bool melee = false;
+    public ISpells spells;
+    public Attack attack;
+    private float meleeAnimationTime=1.2f;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponentInChildren<Animator>();
         t = 0f;
+        var characterAbilities = GetComponent<Abilities>();
+        movementSpeed = characterAbilities.Agility;
+        turningSpeed = characterAbilities.Agility;
+        manaRestore = 4-characterAbilities.Power;
+        meleeDamageTime = 4 - characterAbilities.Strength;
+        currentSpeed = movementSpeed;
+        int hits = characterAbilities.Strength + 2;
+        health = GetComponent<Health>();
+        spells = GetComponent<ISpells>();
+        health.Sethealth (hits, hits);
+        GameController.instance.SetAbilities(characterAbilities, spells);
+        GameController.instance.SetHealth (hits, hits);
+        GameController.instance.SetFatique(0);
+
+        if (melee)
+        {
+            attack = GetComponentInChildren<Attack>();
+            attack.meleeDelay = meleeDamageTime;
+        }
+    }
+
+    /// <summary>
+    /// shooter mode move vertical
+    /// </summary>
+    /// <param name="inputVertical"></param>
+    private void Move_Vertical(float inputVertical)
+    {
+        Vector3 movement = transform.forward * inputVertical;
+        isMovingForward = inputVertical > 0;
+        rb.velocity = movement * currentSpeed;
+        MoveAnimation(rb.velocity.magnitude, isMovingForward);
+    }
+    /// <summary>
+    /// shooter mode horizontal movement
+    /// </summary>
+    /// <param name="inputHorizontal"></param>
+    private void Move_Horizontal(float inputHorizontal)
+    {
+
+        if (Mathf.Abs(inputHorizontal) < 0.1f)
+        {
+            rb.angularVelocity = Vector3.zero;
+        }
+        else
+        {
+            Vector3 turning = Vector3.up * inputHorizontal;
+            rb.angularVelocity = turning * turningSpeed;
+        }
+    }
+
+    /// <summary>
+    /// Isometric movement
+    /// </summary>
+    private void WorldAxisMovement()
+    {
+        float dpadHorizontal = Input.GetAxis("Horizontal");
+        float dpadVertical = Input.GetAxis("Vertical");
+        float rotationSpeed = turningSpeed * multiplier;
+        if (Mathf.Abs(dpadHorizontal) > 0.1f || Mathf.Abs(dpadVertical) > 0.1f)
+        {
+            Vector3 movement = new Vector3(dpadHorizontal, 0.0f, dpadVertical);
+            Quaternion toRotation = Quaternion.LookRotation(movement, Vector3.up);
+            transform.Translate(movement * currentSpeed * Time.deltaTime, Space.World);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotationSpeed * Time.deltaTime );
+            MoveAnimation(1f, true);
+        } else
+        {
+            MoveAnimation(0f, true);
+            rb.angularVelocity = Vector3.zero;
+        }
+    }
+    /// <summary>
+    /// Shooter mode movement
+    /// </summary>
+    private void RelativeAxisMovement()
+    {
+        float dpadHorizontal = Input.GetAxis("Horizontal");
+        float dpadVertical = Input.GetAxis("Vertical");
+        // forward
+        Move_Vertical(dpadVertical);
+        Move_Horizontal(dpadHorizontal);        
     }
 
     /// <summary>
@@ -35,18 +122,70 @@ public class PlayerControllers : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        if (t <= 0)
+        if (tMelee <= 0 && melee) 
         {
-            if (Input.GetButtonDown("Fire1"))
+            if (Input.GetButtonDown("Fire1") && melee)
             {
-                GameObject projectile = Instantiate(fireball, muzzle.position, muzzle.rotation);                
-                projectile.GetComponent<Fireball>().shooterTag = tag;
-                t = manaRestore;
+                MeleeAttack();
+                tMelee = meleeAnimationTime;
             }
-        } else
+        }
+        if (tMelee > 0 && melee)
+        {
+            tMelee -= Time.deltaTime;
+        }
+
+        if (t <= 0) // jos laskuri on laskenut
+        {
+            if (Input.GetButtonDown("Fire1") && !melee)
+            {
+                FireProjectile();
+            }
+            if (Input.GetButtonDown("Fire2"))
+            {
+                if (DefenseSpell())
+                {                     
+                    health.AddFatique();
+                    GameController.instance.SetFatique(health.GetFatique());
+                }
+            } else if (health.GetFatique() > 0)
+            {
+                health.HealFatique();
+                GameController.instance.SetFatique(health.GetFatique());
+                t = manaRestore * defenseMana;
+            }
+        }
+        else
         {
             t -= Time.deltaTime;
+            if (t <= 0) GameController.instance.ShowMana(0, 1);
+            else ShowMana();
         }
+
+    }
+
+    /// <summary>
+    /// Show Mana score and tell if its spell casting or refreshing.
+    /// </summary>
+    private void ShowMana()
+    {
+        string action = "";
+        if (health.GetFatique() == 0) action = "refreshing";
+        else action = spells.GetDefenseSpellName();
+        GameController.instance.ShowMana((float)Math.Round(t, 1), 
+            manaRestore, action);
+    }
+
+
+    /// <summary>
+    /// Instantiates and fires a projectile from the muzzle's position and rotation.
+    /// the mana restore timer is reset. An audio effect is also played.
+    /// </summary>
+    private void FireProjectile()
+    {
+        spells.AttackSpell();
+        t = manaRestore;
+        audiosource.Play();
     }
 
     /// <summary>
@@ -54,26 +193,10 @@ public class PlayerControllers : MonoBehaviour
     /// </summary>
     void FixedUpdate()
     {
-        float inputHorizontal = Input.GetAxis("Horizontal");
-        float inputVertical = Input.GetAxis("Vertical");
-
-        if (inputHorizontal != 0)
+        if (GameController.instance.Isometric) WorldAxisMovement();
+        else RelativeAxisMovement();
+        if (rb.position.y < -10)
         {
-            Vector3 turning = Vector3.up * inputHorizontal;
-            rb.angularVelocity = turning * turningSpeed;
-        }
-        else rb.angularVelocity = new Vector3();
-        if (inputVertical != 0)
-        {
-            Vector3 movement = transform.forward * inputVertical;
-            isMovingForward = inputVertical > 0;
-            rb.velocity = movement * movementSpeed;
-            ActivateAnimation(rb.velocity.magnitude, isMovingForward);
-        }
-        else ActivateAnimation(0);
-        if(rb.position.y < -10)
-        {
-            var health = GetComponent<Health>();
             health.ReduceHealth(1);
         }
     }
@@ -83,10 +206,37 @@ public class PlayerControllers : MonoBehaviour
     /// </summary>
     /// <param name="movement">The intensity of movement (0 to 1).</param>
     /// <param name="isForward">Whether the movement is forward (true) or backward (false).</param>
-    void ActivateAnimation(float movement, bool isForward=true)
-    { 
+    private void MoveAnimation(float movement, bool isForward=true)
+    {
         this.Velocity = Mathf.Clamp01(movement);
-        animator.SetFloat("Velocity", this.Velocity);
-        animator.SetFloat("Speed", isForward ? 1: -1); // Muuta Animation Speed -parametri
+        animator.SetFloat("Velocity", movement);
+        animator.SetFloat("Animation Speed", isForward ? 1: -1); // Muuta Animation Speed -parametri
+        animator.SetInteger("Trigger Number", 0);
+    }
+
+    /// <summary>
+    /// Heals the player by increasing their health by 1 unit. 
+    /// Adjusts the player's current speed based on the new health status, 
+    /// factoring in any fatigue.
+    /// </summary>
+    private bool DefenseSpell()
+    {
+        if (health.GetFatique() > 2) return false;
+        if (spells.DefenseSpell())
+        {
+            t = manaRestore * defenseMana;
+            currentSpeed = movementSpeed - health.GetFatique();
+            return true;
+        }
+        else return false;
+    }
+
+    /// <summary>
+    /// Activate Melee attack animation
+    /// </summary>
+    private void MeleeAttack()
+    {
+        animator.SetFloat("Animation Speed", 0.5f);
+        animator.SetTrigger("Attack");
     }
 }
