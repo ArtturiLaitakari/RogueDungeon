@@ -106,8 +106,6 @@ public class GameController : MonoBehaviour
     }
     public void SetHealth(int current, int maxHealth)
     {
-        if (maxHealth == 3)
-            Debug.Log("täh");
         if (current < 0) { current = 0; }
         ui.SetHealth(current, maxHealth);
     }

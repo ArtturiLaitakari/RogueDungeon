@@ -148,6 +148,7 @@ public class Health : MonoBehaviour
     public void AddFatique() => fatiqueLevel++;
     public void HealFatique() 
     {
+        Debug.Log(fatiqueLevel+" heal");
         if (fatiqueLevel > 0) fatiqueLevel--;
     }
 

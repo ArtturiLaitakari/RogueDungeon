@@ -35,4 +35,22 @@ public class Projectile : Attack
             Destroy(gameObject);
         }
     }
+
+    /// <summary>
+    /// when projectile hits, it damages the target
+    /// then projectile is destroyed
+    /// </summary>
+    /// <param name="other">target</param>
+    protected override void OnTriggerEnter(Collider other)
+    {
+        if (!other.CompareTag("muzzle") && !other.CompareTag(shooterTag))
+        {
+            Health health = other.GetComponent<Health>();
+            if (health != null)
+            {
+                health.ReduceHealth(damage);
+            }
+            Destroy(gameObject);
+        }
+    }
 }

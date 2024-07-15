@@ -17,7 +17,8 @@ public class PlayerControllers : MonoBehaviour
     private float defenseMana = 2;
     private float Velocity;
     private bool isMovingForward = true;
-    private float t;
+    private float manaTimer;
+    private float fatiqueTimer=0;
     private float tMelee;
     private float currentSpeed=0;
     private Health health;
@@ -30,7 +31,7 @@ public class PlayerControllers : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponentInChildren<Animator>();
-        t = 0f;
+        manaTimer = 0f;
         var characterAbilities = GetComponent<Abilities>();
         movementSpeed = characterAbilities.Agility;
         turningSpeed = characterAbilities.Agility;
@@ -116,13 +117,13 @@ public class PlayerControllers : MonoBehaviour
 
     /// <summary>
     /// This method handles the firing of a projectile (fireball) when the "Fire1" button is pressed.
-    /// It checks if the mana cooldown (t) is zero or not. If the cooldown is zero, it instantiates
+    /// It checks if the mana cooldown (manaTimer) is zero or not. If the cooldown is zero, it instantiates
     /// a new fireball projectile at the muzzle position and sets the shooter's tag. Otherwise, it
     /// decreases the cooldown timer.
     /// </summary>
     private void Update()
     {
-        if (tMelee <= 0 && melee) 
+        if (tMelee <= 0 && melee)
         {
             if (Input.GetButtonDown("Fire1") && melee)
             {
@@ -135,7 +136,7 @@ public class PlayerControllers : MonoBehaviour
             tMelee -= Time.deltaTime;
         }
 
-        if (t <= 0) // jos laskuri on laskenut
+        if (manaTimer <= 0)
         {
             if (Input.GetButtonDown("Fire1") && !melee)
             {
@@ -144,23 +145,35 @@ public class PlayerControllers : MonoBehaviour
             if (Input.GetButtonDown("Fire2"))
             {
                 if (DefenseSpell())
-                {                     
+                {
                     health.AddFatique();
+                    currentSpeed = movementSpeed - health.GetFatique();
                     GameController.instance.SetFatique(health.GetFatique());
                 }
-            } else if (health.GetFatique() > 0)
-            {
-                health.HealFatique();
-                GameController.instance.SetFatique(health.GetFatique());
-                t = manaRestore * defenseMana;
             }
         }
         else
         {
-            t -= Time.deltaTime;
-            if (t <= 0) GameController.instance.ShowMana(0, 1);
+            manaTimer -= Time.deltaTime;
+            fatiqueTimer = manaRestore * defenseMana;
+            if (manaTimer <= 0) GameController.instance.ShowMana(0, 1);
             else ShowMana();
         }
+        if (health.GetFatique() > 0)
+        {
+            if (fatiqueTimer <= 0)
+            {
+                health.HealFatique();
+                currentSpeed = movementSpeed - health.GetFatique();
+                GameController.instance.SetFatique(health.GetFatique());
+                fatiqueTimer = manaRestore * defenseMana;
+            }
+            else
+            {
+                fatiqueTimer -= Time.deltaTime;
+            }
+        } else if (fatiqueTimer < 0 ) GameController.instance.SetFatique(health.GetFatique());
+
 
     }
 
@@ -172,7 +185,7 @@ public class PlayerControllers : MonoBehaviour
         string action = "";
         if (health.GetFatique() == 0) action = "refreshing";
         else action = spells.GetDefenseSpellName();
-        GameController.instance.ShowMana((float)Math.Round(t, 1), 
+        GameController.instance.ShowMana((float)Math.Round(manaTimer, 1), 
             manaRestore, action);
     }
 
@@ -184,7 +197,7 @@ public class PlayerControllers : MonoBehaviour
     private void FireProjectile()
     {
         spells.AttackSpell();
-        t = manaRestore;
+        manaTimer = manaRestore;
         audiosource.Play();
     }
 
@@ -224,8 +237,7 @@ public class PlayerControllers : MonoBehaviour
         if (health.GetFatique() > 2) return false;
         if (spells.DefenseSpell())
         {
-            t = manaRestore * defenseMana;
-            currentSpeed = movementSpeed - health.GetFatique();
+            manaTimer = manaRestore * defenseMana;
             return true;
         }
         else return false;
