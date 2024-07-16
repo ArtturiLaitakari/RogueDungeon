@@ -37,16 +37,17 @@ public class GameController : MonoBehaviour
     {
         for (int i = 0; i < enemyStartingAmount; i++)
         {
-            spawner.SpawnEnemy(); // todo type
+            spawner.SpawnEnemy();
         }
+
         player = spawner.SpawnPlayer(selectedHero);
-        var hp = player.GetComponent<Health>();
+        //var hp = player.GetComponent<Health>();
         kills = 0;
         ui.SetKills(kills, maxEnemyAmount);
         currentLives = lives;
         currentEnemyAmount = enemyStartingAmount;
         ui.SetLives(currentLives, lives);
-        ui.SetHealth(hp.GetHealth(), hp.MaxHealth());
+        //ui.SetHealth(hp.GetHealth(), hp.MaxHealth());
     }
 
     /// <summary>

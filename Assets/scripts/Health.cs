@@ -63,7 +63,6 @@ public class Health : MonoBehaviour
     /// <param name="damage">damage amount</param>
     public void ReduceHealth(int damage)
     {
-        Debug.Log(gameObject.name + " reduce health");
         StartCoroutine(DamageFlash());
         currentHealth -= damage;
         if (gameObject.tag == "Player")

@@ -1,7 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class Spawner : MonoBehaviour
@@ -12,6 +9,23 @@ public class Spawner : MonoBehaviour
     public Collider enemyArea;
     public Collider playerArea;
     public float range;
+
+    void Start()
+    {
+        if (!enabled)
+        {
+            Debug.Log("This script is currently disabled.");
+        }
+        if (player == null || player.Length == 0)
+        {
+            throw new Exception("Player array is null or empty in Spawner.");
+        }
+
+        if (enemies == null || enemies.Length == 0)
+        {
+            throw new Exception("Enemies array is null or empty in Spawner.");
+        }
+    }
 
     /// <summary>
     /// Spawns a player GameObject at the specified index in the player array.

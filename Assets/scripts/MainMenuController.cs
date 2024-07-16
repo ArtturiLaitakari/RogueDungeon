@@ -18,8 +18,7 @@ public class MainMenuController : MonoBehaviour
         {
             QuitGame();
         }
-        float horizontal = Input.GetAxis("Horizontal");
-        if (Mathf.Abs(horizontal) > 0.1f ) GameController.instance.NextHero();
+        if (Input.GetButtonDown("Fire3")) GameController.instance.NextHero();
     }
     public void QuitGame()
     {

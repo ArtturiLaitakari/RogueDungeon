@@ -4,7 +4,6 @@ using UnityEngine;
 /// <summary>
 /// Make ruins to the game area
 /// </summary>
-
 public class SpawnRocks : MonoBehaviour
 {
     public int RockCount;

@@ -26,6 +26,7 @@ public class PlayerControllers : MonoBehaviour
     public ISpells spells;
     public Attack attack;
     private float meleeAnimationTime=1.2f;
+    private Renderer characterRenderer;
 
     void Start()
     {
@@ -45,6 +46,7 @@ public class PlayerControllers : MonoBehaviour
         GameController.instance.SetAbilities(characterAbilities, spells);
         GameController.instance.SetHealth (hits, hits);
         GameController.instance.SetFatique(0);
+        characterRenderer = GetComponent<Renderer>();
 
         if (melee)
         {
@@ -112,7 +114,7 @@ public class PlayerControllers : MonoBehaviour
         float dpadVertical = Input.GetAxis("Vertical");
         // forward
         Move_Vertical(dpadVertical);
-        Move_Horizontal(dpadHorizontal);        
+        Move_Horizontal(dpadHorizontal);
     }
 
     /// <summary>

@@ -21,6 +21,7 @@ public class UIController : MonoBehaviour
     public GameObject endScreen;
     public GameObject HUDScreen;
     public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI errorText;
     private int hero = 0;
     public Camera cam;
     private string[] abilities = new string[2];
@@ -36,12 +37,14 @@ Strength: 1
 Agility: 3
 Power: 2
 Fireball
-Heal";
+Heal
+Point light";
         abilities[1] = @"General
 Strength: 3
 Agility: 2
 Power: 1
-Forcefield";
+Forcefield
+Night vision";
         if (descriptionText != null)
         {
             descriptionText.text = abilities[0];
@@ -113,7 +116,9 @@ Forcefield";
             pauseMenu.SetActive(false);
             Time.timeScale = 1f;
         }
-        else  
+        else if (!levelMenu.activeInHierarchy ||
+           !respawnScreen.activeInHierarchy ||
+           !endScreen.activeInHierarchy)
         {
             pauseMenu.SetActive(true);
             Time.timeScale = 0f;
