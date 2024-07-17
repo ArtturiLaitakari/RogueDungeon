@@ -28,9 +28,15 @@ public class GameController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log(spawner);
+        Debug.Log(ui);
+
         selectedHero = Memory.instance.SelectedHero;
         currentScene = SceneManager.GetActiveScene();
-        if(currentScene.buildIndex > 0) StartGame();
+        if (currentScene.buildIndex > 0)
+        {
+            StartGame();
+        }
     }
     void Awake() => instance = this;
     public void StartGame()
@@ -41,13 +47,11 @@ public class GameController : MonoBehaviour
         }
 
         player = spawner.SpawnPlayer(selectedHero);
-        //var hp = player.GetComponent<Health>();
         kills = 0;
         ui.SetKills(kills, maxEnemyAmount);
         currentLives = lives;
         currentEnemyAmount = enemyStartingAmount;
         ui.SetLives(currentLives, lives);
-        //ui.SetHealth(hp.GetHealth(), hp.MaxHealth());
     }
 
     /// <summary>
@@ -137,8 +141,8 @@ public class GameController : MonoBehaviour
 
     /// <summary>
     /// Updates the game state each frame. 
-    /// Handles player respawn, showing respawn and end screens based on game conditions,
-    /// and restarts the game when player lives are exhausted.
+    /// Handles players respawn, showing respawn and end screens based on game conditions,
+    /// and restarts the game when players lives are exhausted.
     /// </summary>    
     void Update()
     {

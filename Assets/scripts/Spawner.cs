@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
-    public GameObject[] player;
+    public GameObject[] players;
     public GameObject[] enemies;
+    public GameObject player;
 
     public Collider enemyArea;
     public Collider playerArea;
@@ -16,9 +17,14 @@ public class Spawner : MonoBehaviour
         {
             Debug.Log("This script is currently disabled.");
         }
-        if (player == null || player.Length == 0)
+        if (players == null || players.Length == 0)
         {
-            throw new Exception("Player array is null or empty in Spawner.");
+            if (players == null)
+            {
+                players = new GameObject[1]; 
+                players[0] = player;
+            }
+
         }
 
         if (enemies == null || enemies.Length == 0)
@@ -28,13 +34,13 @@ public class Spawner : MonoBehaviour
     }
 
     /// <summary>
-    /// Spawns a player GameObject at the specified index in the player array.
+    /// Spawns a players GameObject at the specified index in the players array.
     /// </summary>
-    /// <param name="selected">The index of the player to spawn.</param>
-    /// <returns>Returns the spawned player GameObject.</returns>
+    /// <param name="selected">The index of the players to spawn.</param>
+    /// <returns>Returns the spawned players GameObject.</returns>
     public GameObject SpawnPlayer(int selected)
     {
-        return Spawn(player[selected], playerArea);
+        return Spawn(players[selected], playerArea);
     }
 
     /// <summary>

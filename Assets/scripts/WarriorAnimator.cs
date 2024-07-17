@@ -6,6 +6,8 @@ using UnityEngine;
 public class WarriorAnimator : MonoBehaviour, IAnimationController
 {
     public Animator m_animator;
+    public AudioSource hitAudio;
+
     public void Move(float speed, bool isForward) {
         m_animator.SetFloat("Velocity", speed);
         m_animator.SetFloat("Animation Speed", isForward ? 1 : -1);
@@ -13,6 +15,14 @@ public class WarriorAnimator : MonoBehaviour, IAnimationController
     public void Attack() {
         m_animator.SetFloat("Animation Speed", 1);
         m_animator.SetTrigger("Attack");
+        HitSound();
+    }
+    private void HitSound()
+    {
+        if (hitAudio != null)
+        {
+            hitAudio.Play();
+        }
     }
     public void Die() { }
     public void Respawn() { }

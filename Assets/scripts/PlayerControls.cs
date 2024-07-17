@@ -105,6 +105,7 @@ public class PlayerControllers : MonoBehaviour
             rb.angularVelocity = Vector3.zero;
         }
     }
+
     /// <summary>
     /// Shooter mode movement
     /// </summary>
@@ -204,7 +205,7 @@ public class PlayerControllers : MonoBehaviour
     }
 
     /// <summary>
-    /// Handles fixed physics updates. Calculates player movement and activates animations.
+    /// Calculates players movement and activates animations.
     /// </summary>
     void FixedUpdate()
     {
@@ -217,7 +218,7 @@ public class PlayerControllers : MonoBehaviour
     }
 
     /// <summary>
-    /// Activates the player's animation based on movement intensity.
+    /// Activates the players's animation based on movement intensity.
     /// </summary>
     /// <param name="movement">The intensity of movement (0 to 1).</param>
     /// <param name="isForward">Whether the movement is forward (true) or backward (false).</param>
@@ -226,12 +227,11 @@ public class PlayerControllers : MonoBehaviour
         this.Velocity = Mathf.Clamp01(movement);
         animator.SetFloat("Velocity", movement);
         animator.SetFloat("Animation Speed", isForward ? 1: -1); // Muuta Animation Speed -parametri
-        animator.SetInteger("Trigger Number", 0);
     }
 
     /// <summary>
-    /// Heals the player by increasing their health by 1 unit. 
-    /// Adjusts the player's current speed based on the new health status, 
+    /// Heals the players by increasing their health by 1 unit. 
+    /// Adjusts the players's current speed based on the new health status, 
     /// factoring in any fatigue.
     /// </summary>
     private bool DefenseSpell()

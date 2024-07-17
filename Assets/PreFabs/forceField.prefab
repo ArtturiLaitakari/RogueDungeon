@@ -61,13 +61,21 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 9e10cf57537e9ec4ca733d612fce46cd, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 9e10cf57537e9ec4ca733d612fce46cd, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 9e10cf57537e9ec4ca733d612fce46cd, type: 3}
       propertyPath: m_Materials.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 9e10cf57537e9ec4ca733d612fce46cd, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 10308, guid: 0000000000000000f000000000000000, type: 0}
+      objectReference: {fileID: -7468475587062751170, guid: 9e10cf57537e9ec4ca733d612fce46cd, type: 3}
     - target: {fileID: -7511558181221131132, guid: 9e10cf57537e9ec4ca733d612fce46cd, type: 3}
       propertyPath: m_Materials.Array.data[1]
       value: 
@@ -75,6 +83,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 9e10cf57537e9ec4ca733d612fce46cd, type: 3}
       propertyPath: m_Name
       value: forceField
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9e10cf57537e9ec4ca733d612fce46cd, type: 3}
+      propertyPath: m_TagString
+      value: Player
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -89,6 +101,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9e10cf57537e9ec4ca733d612fce46cd, type: 3}
       insertIndex: -1
       addedObject: {fileID: -6170032638505410704}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9e10cf57537e9ec4ca733d612fce46cd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3341255631710547154}
   m_SourcePrefab: {fileID: 100100000, guid: 9e10cf57537e9ec4ca733d612fce46cd, type: 3}
 --- !u!1 &8692714304913825814 stripped
 GameObject:
@@ -159,7 +174,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 0.25
   m_Pitch: 1
-  Loop: 1
+  Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -168,7 +183,7 @@ AudioSource:
   MinDistance: 5
   MaxDistance: 50
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -241,3 +256,17 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &3341255631710547154
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8692714304913825814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5c7e5502265cc449b0bc2f072376c57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shooterTag: Enemy
+  meleeDelay: 2

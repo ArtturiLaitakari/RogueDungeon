@@ -595,7 +595,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80760badd8109384ab3502d10b9072f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_animator: {fileID: 0}
+  m_animator: {fileID: 6783530631673677198}
 --- !u!1001 &6783530631666397422
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -737,6 +737,11 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!95 &6783530631673677198 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 9500000, guid: 8745dcecb0eafec409964dd1f0b7bb67, type: 3}
+  m_PrefabInstance: {fileID: 6783530631666397422}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8529819180722629400
 PrefabInstance:
   m_ObjectHideFlags: 0

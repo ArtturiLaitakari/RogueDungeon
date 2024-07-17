@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Melee attack class for the player
+/// Melee attack class for the players
 /// </summary>
 
 public class Attack : MonoBehaviour

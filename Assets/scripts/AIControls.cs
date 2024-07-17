@@ -46,7 +46,7 @@ public class AIControllers : MonoBehaviour
     }
 
     /// <summary>
-    /// Handles fixed physics updates. Calculates player movement and activates animations.
+    /// Handles fixed physics updates. Calculates players movement and activates animations.
     /// </summary>
     void FixedUpdate()
     {
@@ -175,7 +175,7 @@ public class AIControllers : MonoBehaviour
         }
     }
     /// <summary>
-    /// find target == player
+    /// find target == players
     /// </summary>
     private void FindPlayer()
     {
@@ -236,7 +236,7 @@ public class AIControllers : MonoBehaviour
     }
 
     /// <summary>
-    /// Activates the player's animation based on movement intensity.
+    /// Activates the players's animation based on movement intensity.
     /// </summary>
     /// <param name="movement">The intensity of movement (0 to 1).</param>
     /// <param name="isForward">Whether the movement is forward (true) or backward (false).</param>

@@ -21,7 +21,6 @@ public class UIController : MonoBehaviour
     public GameObject endScreen;
     public GameObject HUDScreen;
     public TextMeshProUGUI scoreText;
-    public TextMeshProUGUI errorText;
     private int hero = 0;
     public Camera cam;
     private string[] abilities = new string[2];
@@ -56,6 +55,11 @@ Night vision";
     public void Update()
     {
         if (Input.GetButtonDown("Cancel")) TogglePause();
+        if (respawnScreen.activeInHierarchy ||
+            endScreen.activeInHierarchy)
+        {
+            if (Input.GetButtonDown("Cancel")) QuitGame();
+        }
     }
 
     public void SetKillsLeft(int p, int l) => killsText.text = $"Kills: {p}, ({l})";
@@ -111,14 +115,18 @@ Night vision";
     /// </summary>
     public void TogglePause()
     {
+        if (levelMenu.activeInHierarchy ||
+           respawnScreen.activeInHierarchy ||
+           endScreen.activeInHierarchy) { 
+           return; 
+        }
+
         if (pauseMenu.activeInHierarchy)
         {
             pauseMenu.SetActive(false);
             Time.timeScale = 1f;
         }
-        else if (!levelMenu.activeInHierarchy ||
-           !respawnScreen.activeInHierarchy ||
-           !endScreen.activeInHierarchy)
+        else 
         {
             pauseMenu.SetActive(true);
             Time.timeScale = 0f;

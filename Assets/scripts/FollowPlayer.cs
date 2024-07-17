@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Follow player camera controller
+/// Follow players camera controller
 /// </summary>
 public class FollowPlayer : MonoBehaviour
 {
@@ -19,7 +19,7 @@ public class FollowPlayer : MonoBehaviour
     /// <summary>
     /// LateUpdate is called every frame, after all Update functions have been called.
     /// It is used here to update the camera position and orientation based on the 
-    /// player's position and user input for toggling between 
+    /// players's position and user input for toggling between 
     /// isometric and third-person views.
     /// </summary>
     void LateUpdate()
@@ -54,7 +54,7 @@ public class FollowPlayer : MonoBehaviour
 
     /// <summary>
     /// Updates the camera position and rotation in third-person view based on 
-    /// the player's position and orientation.
+    /// the players's position and orientation.
     /// </summary>
     private void ThirdPersonUpdate()
     {

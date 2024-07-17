@@ -26,8 +26,8 @@ public class PrincessSpells : MonoBehaviour, ISpells
     }
 
     /// <summary>
-    /// Heals the player by increasing their health by 1 unit. 
-    /// Adjusts the player's current speed based on the new health status, 
+    /// Heals the players by increasing their health by 1 unit. 
+    /// Adjusts the players's current speed based on the new health status, 
     /// factoring in any fatigue.
     /// </summary>
     public bool DefenseSpell()
