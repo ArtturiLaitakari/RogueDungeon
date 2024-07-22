@@ -6,13 +6,16 @@ using UnityEngine;
 public class FollowPlayer : MonoBehaviour
 {
     private Transform target; // Aseta tämä kameran seuraaman pelaajan Transform
-
     public Vector3 offset; // Aseta haluamasi etäisyys kameran ja pelaajan välille
     public bool isometric = true;
     public float isometricAngle;
     public float lookAtAroundAngle =180;
     public float distance=2f;
     public float y = 1.5f;
+    public float cameraShift = 2f;
+    public float smoothTime = 0.3f;
+    private int shift = 3;
+    private Vector3 velocity = Vector3.zero;
 
     private GameObject player;
 
@@ -37,9 +40,10 @@ public class FollowPlayer : MonoBehaviour
             }
             else
             {
-                transform.position = target.position + offset;
+                IsometricUpdate();
             }
         }
+
         if (Input.GetButtonDown("ToggleView"))
         {
             isometric = !isometric;
@@ -48,8 +52,37 @@ public class FollowPlayer : MonoBehaviour
             {
                 transform.rotation = Quaternion.Euler(isometricAngle, transform.rotation.y, transform.rotation.z);
             }
-
         }
+    }
+
+    private void IsometricUpdate()
+    {
+        Vector3 newOffset = offset;
+        float verticalInput = Input.GetAxis("Vertical");
+        float horizontalInput = Input.GetAxis("Horizontal");
+        if (verticalInput > 0.5f)
+        {
+            newOffset.z = offset.z + cameraShift * shift;
+        }
+        if (verticalInput < -0.5f)
+        {
+            newOffset.z = offset.z - cameraShift * shift;
+            newOffset.y = offset.y - cameraShift;
+        }
+        if (horizontalInput > 0.5f)
+        {
+            Debug.Log(horizontalInput);
+            newOffset.x = offset.x + cameraShift * shift;
+        }
+        if (horizontalInput < -0.5f)
+        {
+            newOffset.x = offset.x - cameraShift * shift;
+        }
+
+        Vector3 targetPosition = target.position + newOffset;
+
+        // Smoothly move the camera to the new position
+        transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime);
     }
 
     /// <summary>

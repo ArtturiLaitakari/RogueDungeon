@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
 
 public class PlayerControllers : MonoBehaviour
 {
@@ -24,9 +25,10 @@ public class PlayerControllers : MonoBehaviour
     private Health health;
     public bool melee = false;
     public ISpells spells;
-    public Attack attack;
+    private Attack attack;
     private float meleeAnimationTime=1.2f;
     private Renderer characterRenderer;
+    private int scale=2;
 
     void Start()
     {
@@ -34,7 +36,7 @@ public class PlayerControllers : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         manaTimer = 0f;
         var characterAbilities = GetComponent<Abilities>();
-        movementSpeed = characterAbilities.Agility;
+        movementSpeed = characterAbilities.Agility*scale;
         turningSpeed = characterAbilities.Agility;
         manaRestore = 4-characterAbilities.Power;
         meleeDamageTime = 4 - characterAbilities.Strength;
@@ -64,8 +66,10 @@ public class PlayerControllers : MonoBehaviour
         Vector3 movement = transform.forward * inputVertical;
         isMovingForward = inputVertical > 0;
         rb.velocity = movement * currentSpeed;
+        rb.velocity = new Vector3(movement.x * currentSpeed, rb.velocity.y, movement.z * currentSpeed);
         MoveAnimation(rb.velocity.magnitude, isMovingForward);
     }
+
     /// <summary>
     /// shooter mode horizontal movement
     /// </summary>

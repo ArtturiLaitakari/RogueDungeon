@@ -44,10 +44,10 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 0.9716981, g: 0.93001974, b: 0.6921057, a: 1}
-  m_Intensity: 2
-  m_Range: 10
-  m_SpotAngle: 59.4
-  m_InnerSpotAngle: 14
+  m_Intensity: 10
+  m_Range: 160
+  m_SpotAngle: 40
+  m_InnerSpotAngle: 4
   m_CookieSize: 10
   m_Shadows:
     m_Type: 2
@@ -255,8 +255,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7232163401217576703}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.5, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 2.616, z: -0.057000045}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -273,14 +273,14 @@ Light:
   serializedVersion: 10
   m_Type: 2
   m_Shape: 0
-  m_Color: {r: 0.9811321, g: 0.5713989, b: 0.0046279924, a: 1}
-  m_Intensity: 1
-  m_Range: 2
+  m_Color: {r: 0.9811321, g: 0.5507298, b: 0.5507298, a: 1}
+  m_Intensity: 2
+  m_Range: 4
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: 0
     m_CustomResolution: -1
     m_Strength: 1
@@ -357,14 +357,14 @@ Transform:
   m_GameObject: {fileID: 7677635525020065283}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0.2398924, y: 0.100000024, z: -2.107821}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6783530631666264584}
   - {fileID: 8529819180723024280}
-  - {fileID: 4414120493561468149}
   - {fileID: 7615233931745902053}
+  - {fileID: 4414120493561468149}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!54 &2521457738867334062
@@ -429,13 +429,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28b69b8c4c772924cb416ab19f14ff0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementSpeed: 3
+  movementSpeed: 6
   manaRestore: 1
   muzzle: {fileID: 8094616421046689526}
   audiosource: {fileID: -4877068676600434993}
   multiplier: 200
   melee: 0
-  attack: {fileID: 0}
 --- !u!114 &5019434278816803969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -596,6 +595,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_animator: {fileID: 6783530631673677198}
+  hitAudio: {fileID: 0}
 --- !u!1001 &6783530631666397422
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -28,9 +28,6 @@ public class GameController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log(spawner);
-        Debug.Log(ui);
-
         selectedHero = Memory.instance.SelectedHero;
         currentScene = SceneManager.GetActiveScene();
         if (currentScene.buildIndex > 0)

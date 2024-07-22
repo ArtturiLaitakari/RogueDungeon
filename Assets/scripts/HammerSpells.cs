@@ -10,8 +10,8 @@ public class HammerSpells : MonoBehaviour, ISpells
     public Transform muzzle;
     public float shieldDuration=9;
     private float t;
-    public string attackSpellName="";
-    public string defenseSpellName;
+    public string attackSpellName="None";
+    public string defenseSpellName="Forcefield";
     public void AttackSpell() {}
 
     /// <summary>
