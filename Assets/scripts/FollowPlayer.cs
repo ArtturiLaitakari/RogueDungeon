@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -27,6 +28,10 @@ public class FollowPlayer : MonoBehaviour
     /// </summary>
     void LateUpdate()
     {
+        if (player == null)
+        {
+            throw new Exception("Player is null or empty in main camera.");
+        }
         if (player == null)
         {
             player = GameObject.FindWithTag("Player");
@@ -71,7 +76,6 @@ public class FollowPlayer : MonoBehaviour
         }
         if (horizontalInput > 0.5f)
         {
-            Debug.Log(horizontalInput);
             newOffset.x = offset.x + cameraShift * shift;
         }
         if (horizontalInput < -0.5f)

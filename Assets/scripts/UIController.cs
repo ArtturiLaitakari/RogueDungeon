@@ -49,14 +49,15 @@ Night vision";
             descriptionText.text = abilities[0];
         }
     }
+
     /// <summary>
     /// Listen to pause button.
     /// </summary>
     public void Update()
     {
         if (Input.GetButtonDown("Cancel")) TogglePause();
-        if (respawnScreen.activeInHierarchy ||
-            endScreen.activeInHierarchy)
+        if ((respawnScreen != null && respawnScreen.activeInHierarchy) ||
+            (endScreen != null && endScreen.activeInHierarchy))
         {
             if (Input.GetButtonDown("Cancel")) QuitGame();
         }

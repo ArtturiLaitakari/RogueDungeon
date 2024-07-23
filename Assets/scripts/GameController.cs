@@ -30,6 +30,10 @@ public class GameController : MonoBehaviour
     {
         selectedHero = Memory.instance.SelectedHero;
         currentScene = SceneManager.GetActiveScene();
+        if (spawner == null)
+        {
+            spawner = GetComponentInChildren<Spawner>();
+        }
         if (currentScene.buildIndex > 0)
         {
             StartGame();

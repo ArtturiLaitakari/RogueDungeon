@@ -13,26 +13,11 @@ public class Spawner : MonoBehaviour
 
     void Start()
     {
-        if (!enabled)
-        {
-            Debug.Log("This script is currently disabled.");
-        }
         if (players == null || players.Length == 0)
         {
-            if (players == null)
-            {
-                players = new GameObject[1]; 
-                players[0] = player;
-            }
-
-        }
-
-        if (enemies == null || enemies.Length == 0)
-        {
-            throw new Exception("Enemies array is null or empty in Spawner.");
+            throw new Exception("Players array is null or empty in Spawner.");
         }
     }
-
     /// <summary>
     /// Spawns a players GameObject at the specified index in the players array.
     /// </summary>
@@ -40,6 +25,10 @@ public class Spawner : MonoBehaviour
     /// <returns>Returns the spawned players GameObject.</returns>
     public GameObject SpawnPlayer(int selected)
     {
+        if (players == null || players.Length == 0)
+        {
+            throw new Exception("Players array is null or empty in Spawner.");
+        }
         return Spawn(players[selected], playerArea);
     }
 
@@ -49,6 +38,10 @@ public class Spawner : MonoBehaviour
     /// <returns>Returns the spawned enemy GameObject.</returns>
     public GameObject SpawnEnemy()
     {
+        if (enemies == null || enemies.Length == 0)
+        {
+            throw new Exception("Enemies array is null or empty in Spawner.");
+        }
         var enemy = GetEnemy();
         return Spawn(enemy, enemyArea);
     }
