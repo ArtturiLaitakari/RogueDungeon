@@ -151,6 +151,7 @@ public class Health : MonoBehaviour
     public int ShowHealth() => currentHealth;
 
     public int GetHealth() => currentHealth;
+    public int GetMaxHealth() => maxHealth;
     public int GetWounds() => (maxHealth - currentHealth);
     public void AddFatique() => fatiqueLevel++;
     public void HealFatique() 

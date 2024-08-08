@@ -9,6 +9,8 @@ public class WaterDetector : MonoBehaviour
         if (other.CompareTag("Water"))
         {
             playerController.Immersed(true);
+            GameController.instance.WaterAudio();
+            if (!GameController.instance.Isometric) RenderSettings.fog = false;
         }
     }
 
@@ -17,6 +19,8 @@ public class WaterDetector : MonoBehaviour
         if (other.CompareTag("Water"))
         {
             playerController.Immersed(false);
+            GameController.instance.WaterAudio();
+            if (!GameController.instance.Isometric) RenderSettings.fog = true;
         }
     }
 }

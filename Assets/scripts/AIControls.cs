@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class AIControllers : MonoBehaviour
 {
-    private Rigidbody rb;
     public float movementSpeed;
     public float turningSpeed;
     public float attackDelay=2;
@@ -20,6 +19,7 @@ public class AIControllers : MonoBehaviour
     public bool melee = false;
     public IAnimationController animationController;
 
+    private Rigidbody rb;
     private float Velocity;
     private bool isMovingForward = true;
     private float AIt;
@@ -44,6 +44,7 @@ public class AIControllers : MonoBehaviour
         state = State.forward;
         nextState = State.forward;
         animationController = GetComponent<IAnimationController> ();
+        if (GameController.instance.outdoor) detectRange *= 10;
     }
 
     /// <summary>

@@ -66,6 +66,10 @@ Night vision";
         {
             if (Input.GetButtonDown("Cancel")) QuitGame();
         }
+        if (levelMenu.activeInHierarchy)
+        {
+            if (Input.GetButtonDown("Fire1")) NextLevel();
+        }
     }
 
     public void SetKillsLeft(int p, int l) => killsText.text = $"Kills: {p}, ({l})";
@@ -87,7 +91,11 @@ Night vision";
         var str = abilities.Strength;
         var dex = abilities.Agility;
         var pow = abilities.Power;
-        abilitiesText.text = $"Str: {str}\nAg: {dex}\nPow:{pow}\nAttack: {spells.GetAttackSpellName()}\nSpell2: {spells.GetDefenseSpellName()}";
+        var a = spells.GetAttackSpellName();
+        var d = spells.GetDefenseSpellName();
+        var p = spells.GetPotionName();
+
+        abilitiesText.text = $"Str: {str}\nAg: {dex}\nPow:{pow}\nAttack: {a}\nDefense: {d}"; // \nPotion: {p}
     }
     public void SetFatique(int f) => fatiqueText.text = $"Fatique: {f}";
 

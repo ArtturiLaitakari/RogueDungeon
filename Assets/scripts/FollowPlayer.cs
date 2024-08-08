@@ -15,7 +15,7 @@ public class FollowPlayer : MonoBehaviour
     public float smoothTime = 0.3f;
     private int shift = 3;
     private float distance = 3.4f;
-    private float y = 2.3f;
+    private float y = 2.9f;
     private Vector3 velocity = Vector3.zero;
     private Vector2 moveInputValue;
     private GameObject player;
@@ -47,13 +47,20 @@ public class FollowPlayer : MonoBehaviour
 
         if (Input.GetButtonDown("ToggleView"))
         {
-            Debug.Log("ToggleView");
             isometric = !isometric;
             GameController.instance.Isometric = isometric;
             if (isometric)
             {
                 transform.rotation = Quaternion.Euler(isometricAngle, transform.rotation.y, transform.rotation.z);
             }
+        }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        Debug.Log(gameObject.name);
+        if (other.CompareTag("Water"))
+        {
+            Debug.Log(gameObject.name);
         }
     }
     private void OnMove(InputValue value)

@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -1410344843278996965}
   m_Layer: 0
   m_Name: Player splinters
-  m_TagString: Untagged
+  m_TagString: Splinter
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4854,6 +4854,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf58022413bec8d4da5916ea5ff08442, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leaveBehind: 1
 --- !u!108 &-1909923358202812952
 Light:
   m_ObjectHideFlags: 0

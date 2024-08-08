@@ -7,13 +7,14 @@ public class PrincessSpells : MonoBehaviour, ISpells
 {
     public GameObject fireball;
     public Transform muzzle;
-    public string attackSpellName;
-    public string defenseSpellName;
+    private string attackSpellName="Fireball";
+    private string defenseSpellName="Health";
+    private string potionName = "Mystery";
+
     private Health health;
     public AudioSource attackAudio;
     public AudioSource defenseAudio;
     public AudioSource potionAudio;
-
     void Start()
     {
         health = GetComponent<Health>(); 
@@ -46,9 +47,6 @@ public class PrincessSpells : MonoBehaviour, ISpells
         } 
         return false;
     }
-    public string GetAttackSpellName() => attackSpellName;
-    public string GetDefenseSpellName() => defenseSpellName;
-
     /// <summary>
     /// To be invented
     /// </summary>
@@ -58,4 +56,8 @@ public class PrincessSpells : MonoBehaviour, ISpells
         potionAudio.Play();
         throw new System.NotImplementedException();
     }
+
+    public string GetAttackSpellName() => attackSpellName;
+    public string GetDefenseSpellName() => defenseSpellName;
+    public string GetPotionName() => potionName;
 }

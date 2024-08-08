@@ -8,10 +8,11 @@ public class HammerSpells : MonoBehaviour, ISpells
     public GameObject forcefield;
     private GameObject fieldInstance;
     public Transform muzzle;
-    public float shieldDuration=9;
+    private float shieldDuration=9;
     private float t;
-    public string attackSpellName="Hammer";
-    public string defenseSpellName="Forcefield";
+    private string attackSpellName="Hammer";
+    private string defenseSpellName="Forcefield";
+    private string potionName = "Heal";
 
     public AudioSource defenseAudio;
     public AudioSource potionAudio;
@@ -53,4 +54,5 @@ public class HammerSpells : MonoBehaviour, ISpells
     }
     public string GetAttackSpellName() => attackSpellName;
     public string GetDefenseSpellName() => defenseSpellName;
+    public string GetPotionName() => potionName;    
 }

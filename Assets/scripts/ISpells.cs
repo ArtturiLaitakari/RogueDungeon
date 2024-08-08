@@ -8,4 +8,6 @@ public interface ISpells
     void Potion();
     string GetAttackSpellName();
     string GetDefenseSpellName();
+    string GetPotionName();
+    
 }

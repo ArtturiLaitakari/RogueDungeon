@@ -10,6 +10,7 @@ public class Memory : MonoBehaviour
     public static Memory instance;
     public int StartingLives { get; set; } = 3;
     public int CurrentLives { get; set; } = 3;
+    public int TotalKills { get; set; } = 0;
 
 
     void Awake()

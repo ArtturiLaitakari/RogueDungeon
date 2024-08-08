@@ -5,8 +5,6 @@ public class Spawner : MonoBehaviour
 {
     public GameObject[] players;
     public GameObject[] enemies;
-    public GameObject player;
-
     public Collider enemyArea;
     public Collider playerArea;
     public float range;

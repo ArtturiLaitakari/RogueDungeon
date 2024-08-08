@@ -20,7 +20,6 @@ public class MainMenuController : MonoBehaviour
             QuitGame();
         }
         if (Input.GetButtonDown("Fire4")) GameController.instance.NextHero();
-        if (Input.GetButtonDown("Horizontal")) GameController.instance.NextHero();
     }
     public void QuitGame()
     {

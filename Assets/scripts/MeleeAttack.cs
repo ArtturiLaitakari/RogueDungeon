@@ -26,6 +26,8 @@ public class MeleeAttack : MonoBehaviour
             rb = gameObject.AddComponent<Rigidbody>();
             rb.isKinematic = true; // Varmistaa, että objekti ei putoa
         }
+        if (attackAudio == null) throw new Exception(collider.name);
+
     }
 
     /// <summary>
@@ -42,7 +44,7 @@ public class MeleeAttack : MonoBehaviour
                 if (health != null)
                 {
                     health.ReduceHealth(damage);
-                    attackAudio.Play();
+                    attackAudio!.Play();
                 }
                 // Päivitä viimeisimmän osuman aika
                 lastHitTime = Time.time;

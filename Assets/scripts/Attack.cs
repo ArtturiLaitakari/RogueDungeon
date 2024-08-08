@@ -58,7 +58,6 @@ public class Attack : MonoBehaviour
             Health health = other.GetComponent<Health>();
             if (health != null)
             {
-                Debug.Log("attack " + health.currentHealth + " / " + lastHitTime);
                 health.ReduceHealth(damage);
                 lastHitTime = Time.time;
                 attackAudio.Play();

@@ -9,21 +9,24 @@ public class GameController : MonoBehaviour
 {
     public Spawner spawner;
 
-    public int kills = 0;
     public int enemyStartingAmount;
     public int maxEnemyAmount;
     public int currentLives;
-    private int currentEnemyAmount;
-
-    private GameObject player;
     public static GameController instance;
     public UIController ui;
     public Scene currentScene;
     public int selectedHero { get; set; } = 0;
 
     public bool Isometric { get; set; } = true;
+    public bool outdoor = false;
     public bool endless = false;
     public AudioSource waterAudio;
+    public GameObject[] gifts;
+    public int numberOfGifts = 0;
+
+    private int currentEnemyAmount;
+    private int kills = 0;
+    private GameObject player;
 
     // Start is called before the first frame update
     void Start()
@@ -90,22 +93,8 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void Lvl()
     {
-        if (currentEnemyAmount >= maxEnemyAmount)
-        {
-            maxEnemyAmount = 0;
-        }
-        if (maxEnemyAmount > 0)
-        {
-            NewEnemy();
-        }
-        if (currentEnemyAmount > 0 && maxEnemyAmount==0)
-        {
-            currentEnemyAmount--;
-        }
-        if (currentEnemyAmount < 1)
-        {
-            ui.LevelFinished();
-        }
+        if (kills >= maxEnemyAmount) ui.LevelFinished();        
+        else NewEnemy();        
     }
 
     /// <summary>
@@ -163,7 +152,6 @@ public class GameController : MonoBehaviour
             if (player == null)
             {
                 ui.ShowRespawnScreen();
-                Debug.Log("respawn screen");
                 if (Input.GetButtonDown("Restart"))
                 {
                     player = spawner.SpawnPlayer(selectedHero);

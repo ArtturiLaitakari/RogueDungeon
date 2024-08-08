@@ -1,18 +1,21 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 public class PlayerControllers : MonoBehaviour
 {
+    public Transform muzzle;
+    public float multiplier = 200f;
+    public bool melee = false;
+    public ISpells spells;
+
+    private float manaRestore;
     private Rigidbody rb;
     private Animator animator;
-    public float movementSpeed;
+    private float movementSpeed;
     private float turningSpeed;
-    public float manaRestore;
-
-    public Transform muzzle;
-    public float multiplier=200f;
-
     private float meleeDamageTime;
     private float defenseMana = 2;
     private float Velocity;
@@ -23,14 +26,14 @@ public class PlayerControllers : MonoBehaviour
     private float tMelee;
     private float currentSpeed=0;
     private Health health;
-    public bool melee = false;
-    public ISpells spells;
     private Attack attack;
     private float meleeAnimationTime=1.2f;
     private Renderer characterRenderer;
     private int scale=2;
     private bool isInWater = false;
     private Vector2 moveInputValue;
+    private Dictionary<float, Action> drowningActions;
+    private float stamina = 0;
 
     void Start()
     {
@@ -42,6 +45,7 @@ public class PlayerControllers : MonoBehaviour
         turningSpeed = characterAbilities.Agility;
         manaRestore = 4-characterAbilities.Power;
         meleeDamageTime = 4 - characterAbilities.Strength;
+        stamina = 1+(characterAbilities.Strength);
         currentSpeed = movementSpeed;
         int hits = characterAbilities.Strength + 2;
         health = GetComponent<Health>();
@@ -57,6 +61,17 @@ public class PlayerControllers : MonoBehaviour
             attack = GetComponentInChildren<Attack>();
             attack.meleeDelay = meleeDamageTime;
         }
+        drowningActions = new Dictionary<float, Action>
+        {
+            { 1, health.AddFatique },
+            { 3, health.AddFatique },
+            { 6, health.AddFatique },
+            { 10, health.ReduceHealth },
+            { 15, health.ReduceHealth },
+            { 21, health.ReduceHealth },
+            { 28, health.ReduceHealth },
+            { 36, health.ReduceHealth },
+        };
     }
 
     /// <summary>
@@ -65,9 +80,9 @@ public class PlayerControllers : MonoBehaviour
     /// <param name="inputVertical"></param>
     private void Move_Vertical(float inputVertical)
     {
+        currentSpeed = movementSpeed - health.GetFatique();
         Vector3 movement = transform.forward * inputVertical;
         isMovingForward = inputVertical > 0;
-        rb.velocity = movement * currentSpeed;
         rb.velocity = new Vector3(movement.x * currentSpeed, rb.velocity.y, movement.z * currentSpeed);
         MoveAnimation(rb.velocity.magnitude, isMovingForward);
     }
@@ -78,17 +93,17 @@ public class PlayerControllers : MonoBehaviour
     /// <param name="inputHorizontal"></param>
     private void Move_Horizontal(float inputHorizontal)
     {
-
-        if (Mathf.Abs(inputHorizontal) < 0.2f)
+        if (Mathf.Abs(inputHorizontal) < 0.1f)
         {
             rb.angularVelocity = Vector3.zero;
         }
         else
         {
-            Vector3 turning = Vector3.up * inputHorizontal;
-            rb.angularVelocity = turning * turningSpeed;
+            Vector3 turning = Vector3.up * inputHorizontal * Time.deltaTime*4;
+            rb.AddTorque(turning , ForceMode.VelocityChange);
         }
     }
+
 
     /// <summary>
     /// Isometric movement
@@ -99,6 +114,7 @@ public class PlayerControllers : MonoBehaviour
 
         if (moveInputValue.magnitude > 0.1f)
         {
+            currentSpeed = movementSpeed - health.GetFatique();
             Vector3 movement = new Vector3(moveInputValue.x, 0.0f, moveInputValue.y);
             Quaternion toRotation = Quaternion.LookRotation(movement, Vector3.up);
             transform.Translate(movement * currentSpeed * Time.deltaTime, Space.World);
@@ -117,8 +133,17 @@ public class PlayerControllers : MonoBehaviour
     /// </summary>
     private void RelativeAxisMovement()
     {
-        Move_Vertical(moveInputValue.y);
-        Move_Horizontal(moveInputValue.x);
+
+        if (moveInputValue.magnitude > 0.1f)
+        {
+            Move_Vertical(moveInputValue.y);
+            Move_Horizontal(moveInputValue.x);
+        }
+        else
+        {
+            MoveAnimation(0f, true);
+            rb.angularVelocity = Vector3.zero;
+        }
     }
 
     /// <summary>
@@ -153,7 +178,6 @@ public class PlayerControllers : MonoBehaviour
                 if (DefenseSpell())
                 {
                     health.AddFatique();
-                    currentSpeed = movementSpeed - health.GetFatique();
                     GameController.instance.SetFatique(health.GetFatique());
                 }
             }
@@ -167,10 +191,9 @@ public class PlayerControllers : MonoBehaviour
         }
         if (health.GetFatique() > 0)
         {
-            if (fatiqueTimer <= 0)
+            if (fatiqueTimer <= 0 && !isInWater)
             {
                 health.HealFatique();
-                currentSpeed = movementSpeed - health.GetFatique();
                 GameController.instance.SetFatique(health.GetFatique());
                 fatiqueTimer = manaRestore * defenseMana;
             }
@@ -186,18 +209,17 @@ public class PlayerControllers : MonoBehaviour
     /// </summary>
     void FixedUpdate()
     {
-        //moveInputValue = Vector2.zero;
-        //ReadKeyboard();
         if (GameController.instance.Isometric) WorldAxisMovement();
         else RelativeAxisMovement();
         if (rb.position.y < -7)
         {
             health.ReduceHealth(1);
         }
+        
         if (isInWater)
         {
             isDrowning();
-        } else if(drowningTimer < 0)
+        } else if(drowningTimer > 0)
         {         
             drowningTimer = 0;
         }
@@ -210,27 +232,18 @@ public class PlayerControllers : MonoBehaviour
     /// </summary>
     private void isDrowning()
     {
-        drowningTimer -= Time.deltaTime;
-        GameController.instance.ShowMana("Magic inactive");
-        GameController.instance.WaterAudio();
-
-        // Taulukko ajastimille ja niihin liittyville toiminnoille
-        Dictionary<float, Action> drowningActions = new Dictionary<float, Action>
+        drowningTimer += Time.deltaTime / stamina;
+        GameController.instance.ShowMana("Magic inactive");        
+        float roundedTimer = (Mathf.Round(drowningTimer * 10f) / 10f);
+        float nextActionTime = drowningActions.Keys.FirstOrDefault(key => key >= roundedTimer);       
+        
+        if (roundedTimer == nextActionTime)
         {
-            { -10, health.AddFatique },
-            { -20, health.AddFatique },
-            { -30, health.ReduceHealth },
-            { -40, health.ReduceHealth }
-        };
-
-        foreach (var action in drowningActions)
-        {
-            if (drowningTimer < action.Key)
-            {
-                action.Value.Invoke();
-                // Prevent the same action from being invoked multiple times
-                drowningTimer = Mathf.Max(drowningTimer, action.Key);
-            }
+            drowningActions.TryGetValue(nextActionTime, out Action nextAction);
+            nextAction.Invoke();
+            drowningTimer += 0.1f;
+            GameController.instance.SetFatique(health.GetFatique());
+            GameController.instance.SetHealth(health.GetHealth(), health.GetMaxHealth());
         }
     }
 
@@ -252,15 +265,6 @@ public class PlayerControllers : MonoBehaviour
     private void OnMove(InputValue value)
     {
         moveInputValue = value.Get<Vector2>();
-    }
-
-    private void ReadKeyboard()
-    {
-        if (Input.GetKey(KeyCode.LeftArrow)) moveInputValue.x = -1f;
-        else if (Input.GetKey(KeyCode.RightArrow)) moveInputValue.x = 1f;
-
-        if (Input.GetKey(KeyCode.UpArrow)) moveInputValue.y = 1f;
-        else if (Input.GetKey(KeyCode.DownArrow)) moveInputValue.y = -1f;
     }
 
     /// <summary>
