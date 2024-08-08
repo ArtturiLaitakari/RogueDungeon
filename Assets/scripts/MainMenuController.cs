@@ -5,6 +5,7 @@ public class MainMenuController : MonoBehaviour
 {
     public void StartGame()
     {
+        Memory.instance.CurrentLives = Memory.instance.StartingLives;
         SceneManager.LoadScene("Lvl1");
     }
 
@@ -18,7 +19,8 @@ public class MainMenuController : MonoBehaviour
         {
             QuitGame();
         }
-        if (Input.GetButtonDown("Fire3")) GameController.instance.NextHero();
+        if (Input.GetButtonDown("Fire4")) GameController.instance.NextHero();
+        if (Input.GetButtonDown("Horizontal")) GameController.instance.NextHero();
     }
     public void QuitGame()
     {

@@ -5,7 +5,7 @@ public interface ISpells
 {
     void AttackSpell();
     bool DefenseSpell();
-    void MasterySpell();
+    void Potion();
     string GetAttackSpellName();
     string GetDefenseSpellName();
 }

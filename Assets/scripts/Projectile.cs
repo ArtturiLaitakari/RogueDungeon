@@ -3,13 +3,16 @@ using UnityEngine;
 /// <summary>
 /// Parent class for all projectiles.
 /// </summary>
-public class Projectile : Attack
+public class Projectile : MonoBehaviour
 {
+    private const int D = 1;
     public float speed;
     public float time;
     protected Rigidbody rb;
     protected float t;
     public AudioSource audioSource;
+    public string shooterTag = "Player";
+    public int damage = D;
 
     /// <summary>
     /// A projectile has been created, make it fast
@@ -17,9 +20,11 @@ public class Projectile : Attack
     void Start()
     {
         t = time;
-        rb = GetComponent<Rigidbody>();
         Vector3 playerForward = transform.forward;
         playerForward.y = 0; 
+        Collider collider = GetComponent<Collider>();
+        collider.isTrigger = true;
+        rb = GetComponent<Rigidbody>();
         rb.velocity = playerForward * speed;
     }
 
@@ -41,7 +46,7 @@ public class Projectile : Attack
     /// then projectile is destroyed
     /// </summary>
     /// <param name="other">target</param>
-    protected override void OnTriggerEnter(Collider other)
+    protected virtual void OnTriggerEnter(Collider other)    
     {
         if (!other.CompareTag("muzzle") && !other.CompareTag(shooterTag))
         {

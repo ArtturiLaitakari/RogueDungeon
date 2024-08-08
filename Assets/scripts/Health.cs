@@ -13,7 +13,7 @@ public class Health : MonoBehaviour
     public Color damageColor = Color.red;
     public float damageFlashTime = 1f;
 
-    public int currentHealth;
+    public int currentHealth=3;
     public int fatiqueLevel = 0;
     private Color originalColor;
     private Color fadingColor;
@@ -82,6 +82,14 @@ public class Health : MonoBehaviour
             dead = true;
             Destroy(gameObject);
         }
+    }
+
+    /// <summary>
+    /// Reduces the player's health by the default amount (1).
+    /// </summary>
+    public void ReduceHealth()
+    {
+        ReduceHealth(1);
     }
 
     /// <summary>

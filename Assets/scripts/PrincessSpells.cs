@@ -10,6 +10,10 @@ public class PrincessSpells : MonoBehaviour, ISpells
     public string attackSpellName;
     public string defenseSpellName;
     private Health health;
+    public AudioSource attackAudio;
+    public AudioSource defenseAudio;
+    public AudioSource potionAudio;
+
     void Start()
     {
         health = GetComponent<Health>(); 
@@ -23,6 +27,7 @@ public class PrincessSpells : MonoBehaviour, ISpells
     {
         GameObject projectile = GameObject.Instantiate(fireball, muzzle.position, muzzle.rotation);
         projectile.GetComponent<Fireball>().shooterTag = "Player";
+        attackAudio.Play();
     }
 
     /// <summary>
@@ -36,6 +41,7 @@ public class PrincessSpells : MonoBehaviour, ISpells
         {
             health.AddHealth();
             GameController.instance.SetHealth(health.GetHealth(), health.MaxHealth());
+            defenseAudio.Play();
             return true;
         } 
         return false;
@@ -47,8 +53,9 @@ public class PrincessSpells : MonoBehaviour, ISpells
     /// To be invented
     /// </summary>
     /// <exception cref="System.NotImplementedException"></exception>
-    public void MasterySpell()
+    public void Potion()
     {
+        potionAudio.Play();
         throw new System.NotImplementedException();
     }
 }

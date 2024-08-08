@@ -10,8 +10,6 @@ public class GameController : MonoBehaviour
     public Spawner spawner;
 
     public int kills = 0;
-    public int scorePerEnemy = 1;
-    public int lives = 3;
     public int enemyStartingAmount;
     public int maxEnemyAmount;
     public int currentLives;
@@ -24,6 +22,8 @@ public class GameController : MonoBehaviour
     public int selectedHero { get; set; } = 0;
 
     public bool Isometric { get; set; } = true;
+    public bool endless = false;
+    public AudioSource waterAudio;
 
     // Start is called before the first frame update
     void Start()
@@ -34,6 +34,7 @@ public class GameController : MonoBehaviour
         {
             spawner = GetComponentInChildren<Spawner>();
         }
+
         if (currentScene.buildIndex > 0)
         {
             StartGame();
@@ -50,9 +51,9 @@ public class GameController : MonoBehaviour
         player = spawner.SpawnPlayer(selectedHero);
         kills = 0;
         ui.SetKills(kills, maxEnemyAmount);
-        currentLives = lives;
+        currentLives = Memory.instance.CurrentLives;
         currentEnemyAmount = enemyStartingAmount;
-        ui.SetLives(currentLives, lives);
+        ui.SetLives(currentLives, Memory.instance.StartingLives);
     }
 
     /// <summary>
@@ -61,8 +62,12 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void EnemyDestroyed()
     {    
-        (currentScene.buildIndex == 1 ? (System.Action)Lvl1 : Lvl2)();
-        if (maxEnemyAmount == 0) ui.SetKillsLeft(++kills, currentEnemyAmount);
+        (endless ? (Action)Lvl : LvlEndless)();
+        if (currentEnemyAmount >= maxEnemyAmount)
+        {
+            ui.SetKillsLeft(++kills, currentEnemyAmount);
+            if(kills >= maxEnemyAmount) ui.LevelFinished();
+        }
         else ui.SetKills(++kills, maxEnemyAmount);
 
     }
@@ -83,7 +88,7 @@ public class GameController : MonoBehaviour
     /// <summary>
     /// enemy handling for level 1
     /// </summary>
-    private void Lvl1()
+    private void Lvl()
     {
         if (currentEnemyAmount >= maxEnemyAmount)
         {
@@ -106,27 +111,18 @@ public class GameController : MonoBehaviour
     /// <summary>
     /// enemy handling for level 2
     /// </summary>
-    private void Lvl2()
-    {
-        NewEnemy();
-    }
+    private void LvlEndless() => NewEnemy();
     public void SetHealth(int current, int maxHealth)
     {
         if (current < 0) { current = 0; }
         ui.SetHealth(current, maxHealth);
     }
-    public void ShowMana(float mana, float magicLimit, string spell)
-    {
-        ui.SetMana(mana, magicLimit, spell);
-    }
-    public void ShowMana(float mana, float magicLimit)
-    {
-        ui.SetMana(mana, magicLimit, "");
-    }
-    public void SetFatique(int f)
-    {
-        ui.SetFatique(f);
-    }
+    public void ShowMana(float mana) => ui.SetMana(mana);
+    public void ShowMana(string problem) => ui.SetMana(problem);
+    public void SetFatique(int f) => ui.SetFatique(f);
+
+    public void SetCondition(string c) => ui.SetCondition(c);
+
     public void SetAbilities(Abilities a, ISpells spells)
     {
         ui.SetAbilities(a, spells);
@@ -138,6 +134,21 @@ public class GameController : MonoBehaviour
     public void NextHero()
     {
         ui.NextHero();
+    }
+
+    public void NextLevel()
+    {
+        Memory.instance.CurrentLives = currentLives;
+        SceneManager.LoadScene(currentScene.buildIndex +1);
+    }
+    public void WaterAudio()
+    {
+        waterAudio.Play();
+    }
+
+    public bool LevelFinished()
+    {
+        return kills == maxEnemyAmount;
     }
 
     /// <summary>
@@ -152,10 +163,11 @@ public class GameController : MonoBehaviour
             if (player == null)
             {
                 ui.ShowRespawnScreen();
+                Debug.Log("respawn screen");
                 if (Input.GetButtonDown("Restart"))
                 {
                     player = spawner.SpawnPlayer(selectedHero);
-                    ui.SetLives(--currentLives, lives);
+                    ui.SetLives(--currentLives, Memory.instance.StartingLives);
                     ui.HideRespawnScreen();
                 }
             } 

@@ -8,6 +8,9 @@ public class Memory : MonoBehaviour
 {
     public int SelectedHero { get; set; } = 0;
     public static Memory instance;
+    public int StartingLives { get; set; } = 3;
+    public int CurrentLives { get; set; } = 3;
+
 
     void Awake()
     {

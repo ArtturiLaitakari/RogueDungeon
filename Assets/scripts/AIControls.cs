@@ -33,6 +33,7 @@ public class AIControllers : MonoBehaviour
     private enum State { forward, left, right, back, stop };
     private State state;
     private State nextState;
+    private bool isInWater = false;
 
     void Start()
     {
@@ -89,6 +90,8 @@ public class AIControllers : MonoBehaviour
             state = State.right;
             target = rightHit.point;
         }
+        if (other.CompareTag("Water")) isInWater = false;
+        if (other.CompareTag("Water")) isInWater = true;
     }
 
     /// <summary>
@@ -222,9 +225,12 @@ public class AIControllers : MonoBehaviour
     /// </summary>
     void FireProjectile()
     {
-        GameObject p = Instantiate(projectile, muzzle.position, muzzle.rotation);
-        p.GetComponent<Fireball>().shooterTag = tag;
-        Pt = attackDelay;
+        if (!isInWater) // and magic attack
+        {
+            GameObject p = Instantiate(projectile, muzzle.position, muzzle.rotation);
+            p.GetComponent<Fireball>().shooterTag = tag;
+            Pt = attackDelay;
+        }
     }
     /// <summary>
     /// Activate attack melee animation

@@ -1,7 +1,7 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Experimental.GlobalIllumination;
-
+using UnityEngine.InputSystem;
 public class PlayerControllers : MonoBehaviour
 {
     private Rigidbody rb;
@@ -11,7 +11,6 @@ public class PlayerControllers : MonoBehaviour
     public float manaRestore;
 
     public Transform muzzle;
-    public AudioSource audiosource;
     public float multiplier=200f;
 
     private float meleeDamageTime;
@@ -20,6 +19,7 @@ public class PlayerControllers : MonoBehaviour
     private bool isMovingForward = true;
     private float manaTimer;
     private float fatiqueTimer=0;
+    private float drowningTimer = 0;
     private float tMelee;
     private float currentSpeed=0;
     private Health health;
@@ -29,6 +29,8 @@ public class PlayerControllers : MonoBehaviour
     private float meleeAnimationTime=1.2f;
     private Renderer characterRenderer;
     private int scale=2;
+    private bool isInWater = false;
+    private Vector2 moveInputValue;
 
     void Start()
     {
@@ -77,7 +79,7 @@ public class PlayerControllers : MonoBehaviour
     private void Move_Horizontal(float inputHorizontal)
     {
 
-        if (Mathf.Abs(inputHorizontal) < 0.1f)
+        if (Mathf.Abs(inputHorizontal) < 0.2f)
         {
             rb.angularVelocity = Vector3.zero;
         }
@@ -93,17 +95,17 @@ public class PlayerControllers : MonoBehaviour
     /// </summary>
     private void WorldAxisMovement()
     {
-        float dpadHorizontal = Input.GetAxis("Horizontal");
-        float dpadVertical = Input.GetAxis("Vertical");
         float rotationSpeed = turningSpeed * multiplier;
-        if (Mathf.Abs(dpadHorizontal) > 0.1f || Mathf.Abs(dpadVertical) > 0.1f)
+
+        if (moveInputValue.magnitude > 0.1f)
         {
-            Vector3 movement = new Vector3(dpadHorizontal, 0.0f, dpadVertical);
+            Vector3 movement = new Vector3(moveInputValue.x, 0.0f, moveInputValue.y);
             Quaternion toRotation = Quaternion.LookRotation(movement, Vector3.up);
             transform.Translate(movement * currentSpeed * Time.deltaTime, Space.World);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotationSpeed * Time.deltaTime );
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotationSpeed * Time.deltaTime);
             MoveAnimation(1f, true);
-        } else
+        }
+        else
         {
             MoveAnimation(0f, true);
             rb.angularVelocity = Vector3.zero;
@@ -115,11 +117,8 @@ public class PlayerControllers : MonoBehaviour
     /// </summary>
     private void RelativeAxisMovement()
     {
-        float dpadHorizontal = Input.GetAxis("Horizontal");
-        float dpadVertical = Input.GetAxis("Vertical");
-        // forward
-        Move_Vertical(dpadVertical);
-        Move_Horizontal(dpadHorizontal);
+        Move_Vertical(moveInputValue.y);
+        Move_Horizontal(moveInputValue.x);
     }
 
     /// <summary>
@@ -163,7 +162,7 @@ public class PlayerControllers : MonoBehaviour
         {
             manaTimer -= Time.deltaTime;
             fatiqueTimer = manaRestore * defenseMana;
-            if (manaTimer <= 0) GameController.instance.ShowMana(0, 1);
+            if (manaTimer <= 0) GameController.instance.ShowMana(0);
             else ShowMana();
         }
         if (health.GetFatique() > 0)
@@ -180,32 +179,6 @@ public class PlayerControllers : MonoBehaviour
                 fatiqueTimer -= Time.deltaTime;
             }
         } else if (fatiqueTimer < 0 ) GameController.instance.SetFatique(health.GetFatique());
-
-
-    }
-
-    /// <summary>
-    /// Show Mana score and tell if its spell casting or refreshing.
-    /// </summary>
-    private void ShowMana()
-    {
-        string action = "";
-        if (health.GetFatique() == 0) action = "refreshing";
-        else action = spells.GetDefenseSpellName();
-        GameController.instance.ShowMana((float)Math.Round(manaTimer, 1), 
-            manaRestore, action);
-    }
-
-
-    /// <summary>
-    /// Instantiates and fires a projectile from the muzzle's position and rotation.
-    /// the mana restore timer is reset. An audio effect is also played.
-    /// </summary>
-    private void FireProjectile()
-    {
-        spells.AttackSpell();
-        manaTimer = manaRestore;
-        audiosource.Play();
     }
 
     /// <summary>
@@ -213,11 +186,106 @@ public class PlayerControllers : MonoBehaviour
     /// </summary>
     void FixedUpdate()
     {
+        //moveInputValue = Vector2.zero;
+        //ReadKeyboard();
         if (GameController.instance.Isometric) WorldAxisMovement();
         else RelativeAxisMovement();
-        if (rb.position.y < -10)
+        if (rb.position.y < -7)
         {
             health.ReduceHealth(1);
+        }
+        if (isInWater)
+        {
+            isDrowning();
+        } else if(drowningTimer < 0)
+        {         
+            drowningTimer = 0;
+        }
+    }
+
+    /// <summary>
+    /// Checks the drowning timer and applies fatigue or reduces health
+    /// based on the elapsed drowning time. The method uses predefined
+    /// thresholds to determine when to apply fatigue or health reduction.
+    /// </summary>
+    private void isDrowning()
+    {
+        drowningTimer -= Time.deltaTime;
+        GameController.instance.ShowMana("Magic inactive");
+        GameController.instance.WaterAudio();
+
+        // Taulukko ajastimille ja niihin liittyville toiminnoille
+        Dictionary<float, Action> drowningActions = new Dictionary<float, Action>
+        {
+            { -10, health.AddFatique },
+            { -20, health.AddFatique },
+            { -30, health.ReduceHealth },
+            { -40, health.ReduceHealth }
+        };
+
+        foreach (var action in drowningActions)
+        {
+            if (drowningTimer < action.Key)
+            {
+                action.Value.Invoke();
+                // Prevent the same action from being invoked multiple times
+                drowningTimer = Mathf.Max(drowningTimer, action.Key);
+            }
+        }
+    }
+
+    public void Immersed(bool immersed)
+    {
+        isInWater = immersed;
+        if(isInWater)
+        {
+            GameController.instance.ShowMana("Magic inactive");
+            GameController.instance.SetCondition("Drowning");
+        }
+        else
+        {
+            GameController.instance.ShowMana("Mana: 0");
+            GameController.instance.SetCondition("");
+        }
+    }
+
+    private void OnMove(InputValue value)
+    {
+        moveInputValue = value.Get<Vector2>();
+    }
+
+    private void ReadKeyboard()
+    {
+        if (Input.GetKey(KeyCode.LeftArrow)) moveInputValue.x = -1f;
+        else if (Input.GetKey(KeyCode.RightArrow)) moveInputValue.x = 1f;
+
+        if (Input.GetKey(KeyCode.UpArrow)) moveInputValue.y = 1f;
+        else if (Input.GetKey(KeyCode.DownArrow)) moveInputValue.y = -1f;
+    }
+
+    /// <summary>
+    /// Show Mana score and tell if its spell casting or refreshing.
+    /// </summary>
+    private void ShowMana()
+    {
+        GameController.instance.ShowMana((float)Math.Round(manaTimer, 1));
+    }
+
+
+    /// <summary>
+    /// Instantiates and fires a projectile from the muzzle's position and rotation.
+    /// the mana restore timer is reset. 
+    /// </summary>
+    private void FireProjectile()
+    {
+        if (isInWater) // and magic attack
+        {
+            GameController.instance.ShowMana("magic inactive");
+        }
+        else
+        {
+            spells.AttackSpell();
+            manaTimer = manaRestore;
         }
     }
 
@@ -240,7 +308,16 @@ public class PlayerControllers : MonoBehaviour
     /// </summary>
     private bool DefenseSpell()
     {
-        if (health.GetFatique() > 2) return false;
+        if (isInWater)
+        {
+            GameController.instance.ShowMana("magic inactive");
+            return false;
+        }      
+        if (health.GetFatique() > 2)
+        {
+            GameController.instance.ShowMana("Too tired.");
+            return false;
+        }
         if (spells.DefenseSpell())
         {
             manaTimer = manaRestore * defenseMana;
@@ -256,5 +333,22 @@ public class PlayerControllers : MonoBehaviour
     {
         animator.SetFloat("Animation Speed", 0.5f);
         animator.SetTrigger("Attack");
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        string colliderTag = other.gameObject.tag;
+        if (colliderTag == "Finish")
+        {
+            GameController.instance.NextLevel();
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Water"))
+        {
+            isInWater = false;
+            GameController.instance.ShowMana("Mana: 0");
+        }
     }
 }

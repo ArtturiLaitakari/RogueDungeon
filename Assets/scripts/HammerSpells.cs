@@ -10,8 +10,11 @@ public class HammerSpells : MonoBehaviour, ISpells
     public Transform muzzle;
     public float shieldDuration=9;
     private float t;
-    public string attackSpellName="None";
+    public string attackSpellName="Hammer";
     public string defenseSpellName="Forcefield";
+
+    public AudioSource defenseAudio;
+    public AudioSource potionAudio;
     public void AttackSpell() {}
 
     /// <summary>
@@ -24,6 +27,7 @@ public class HammerSpells : MonoBehaviour, ISpells
         fieldInstance = Instantiate(forcefield, position, Quaternion.Euler(90, 0, 0));
         fieldInstance.transform.parent = transform;
         t = shieldDuration;
+        defenseAudio.Play();
         return true;
     }
 
@@ -31,8 +35,9 @@ public class HammerSpells : MonoBehaviour, ISpells
     /// To be invented
     /// </summary>
     /// <exception cref="System.NotImplementedException"></exception>
-    public void MasterySpell()
+    public void Potion()
     {
+        potionAudio.Play();
         throw new System.NotImplementedException();
     }
 

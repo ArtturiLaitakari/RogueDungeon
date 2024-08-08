@@ -1,4 +1,4 @@
-using System;
+using UnityEngine.InputSystem;
 using UnityEngine;
 
 /// <summary>
@@ -6,18 +6,18 @@ using UnityEngine;
 /// </summary>
 public class FollowPlayer : MonoBehaviour
 {
-    private Transform target; // Aseta tämä kameran seuraaman pelaajan Transform
+    public Transform target; // Aseta tämä kameran seuraaman pelaajan Transform
     public Vector3 offset; // Aseta haluamasi etäisyys kameran ja pelaajan välille
     public bool isometric = true;
     public float isometricAngle;
     public float lookAtAroundAngle =180;
-    public float distance=2f;
-    public float y = 1.5f;
     public float cameraShift = 2f;
     public float smoothTime = 0.3f;
     private int shift = 3;
+    private float distance = 3.4f;
+    private float y = 2.3f;
     private Vector3 velocity = Vector3.zero;
-
+    private Vector2 moveInputValue;
     private GameObject player;
 
     /// <summary>
@@ -28,10 +28,6 @@ public class FollowPlayer : MonoBehaviour
     /// </summary>
     void LateUpdate()
     {
-        if (player == null)
-        {
-            throw new Exception("Player is null or empty in main camera.");
-        }
         if (player == null)
         {
             player = GameObject.FindWithTag("Player");
@@ -51,6 +47,7 @@ public class FollowPlayer : MonoBehaviour
 
         if (Input.GetButtonDown("ToggleView"))
         {
+            Debug.Log("ToggleView");
             isometric = !isometric;
             GameController.instance.Isometric = isometric;
             if (isometric)
@@ -59,33 +56,34 @@ public class FollowPlayer : MonoBehaviour
             }
         }
     }
+    private void OnMove(InputValue value)
+    {
+        moveInputValue = value.Get<Vector2>();
+    }
 
     private void IsometricUpdate()
     {
         Vector3 newOffset = offset;
-        float verticalInput = Input.GetAxis("Vertical");
-        float horizontalInput = Input.GetAxis("Horizontal");
-        if (verticalInput > 0.5f)
+        if (moveInputValue.y > 0.1f)
         {
             newOffset.z = offset.z + cameraShift * shift;
         }
-        if (verticalInput < -0.5f)
+        if (moveInputValue.y < -0.5f)
         {
             newOffset.z = offset.z - cameraShift * shift;
             newOffset.y = offset.y - cameraShift;
         }
-        if (horizontalInput > 0.5f)
+        if (moveInputValue.x > 0.5f)
         {
             newOffset.x = offset.x + cameraShift * shift;
         }
-        if (horizontalInput < -0.5f)
+        if (moveInputValue.x < -0.5f)
         {
             newOffset.x = offset.x - cameraShift * shift;
         }
 
         Vector3 targetPosition = target.position + newOffset;
 
-        // Smoothly move the camera to the new position
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime);
     }
 

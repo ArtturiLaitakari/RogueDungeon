@@ -50,9 +50,11 @@ public class SpawnRocks : MonoBehaviour
 
         Health health = spawnedBlock.GetComponent<Health>();
         if(health != null) health.AddHealth((int)randomSize);
-
-        rb = spawnedBlock.GetComponent<Rigidbody>();
-        rb.mass *= randomSize;
+        if(rb != null) // random trees need no mass
+        {
+            rb = spawnedBlock.GetComponent<Rigidbody>();
+            rb.mass *= randomSize;
+        }
     }
     float Randomize(float min, float max)
     {

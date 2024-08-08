@@ -38,12 +38,12 @@ public class Spawner : MonoBehaviour
     /// <returns>Returns the spawned enemy GameObject.</returns>
     public GameObject SpawnEnemy()
     {
-        if (enemies == null || enemies.Length == 0)
+        if (enemies.Length > 0)
         {
-            throw new Exception("Enemies array is null or empty in Spawner.");
+            var enemy = GetEnemy();
+            return Spawn(enemy, enemyArea);
         }
-        var enemy = GetEnemy();
-        return Spawn(enemy, enemyArea);
+        else return null;
     }
 
     /// <summary>
@@ -72,6 +72,7 @@ public class Spawner : MonoBehaviour
 
         Vector3 position = new Vector3(randomx, maxPoint.y, randomz);
         Collider[] colliders = Physics.OverlapSphere(position, range);
+        obj.transform.rotation = Quaternion.identity;
 
         for (int i = 0; i < colliders.Length; i++)
         {

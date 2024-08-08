@@ -4,14 +4,15 @@ using UnityEngine;
 /// <summary>
 /// Melee attack class for the players
 /// </summary>
-
 public class Attack : MonoBehaviour
 {
     public string shooterTag="Player";
-    public float meleeDelay; 
+    public float meleeDelay=1f; 
     public Animator animator;
     private float lastHitTime = 0;
     public int damage = 1;
+    public AudioSource attackAudio;
+
 
     void Start()
     {
@@ -30,9 +31,8 @@ public class Attack : MonoBehaviour
     }
 
 
-    protected virtual void OnTriggerEnter(Collider other)
+    protected virtual void OnTriggerStay(Collider other)
     {
-        if (animator == null) throw new Exception("Lis‰‰ animator");
         if (other.CompareTag("muzzle") || other.CompareTag(shooterTag)) return;
 
         AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
@@ -58,7 +58,10 @@ public class Attack : MonoBehaviour
             Health health = other.GetComponent<Health>();
             if (health != null)
             {
+                Debug.Log("attack " + health.currentHealth + " / " + lastHitTime);
                 health.ReduceHealth(damage);
+                lastHitTime = Time.time;
+                attackAudio.Play();
             }
         }
     }

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -9,6 +10,7 @@ public class MeleeAttack : MonoBehaviour
     public string shooterTag="Enemy";
     public float meleeDelay; 
     private float lastHitTime=0;
+    public AudioSource attackAudio;
 
     void Start()
     {
@@ -30,7 +32,7 @@ public class MeleeAttack : MonoBehaviour
     /// NPC attack method, cause damage upon hit.
     /// </summary>
     /// <param name="other"></param>
-    protected virtual void OnTriggerEnter(Collider other)
+    protected virtual void OnTriggerStay(Collider other)
     {
         if (!other.CompareTag("muzzle") && !other.CompareTag(shooterTag))
         {
@@ -40,6 +42,7 @@ public class MeleeAttack : MonoBehaviour
                 if (health != null)
                 {
                     health.ReduceHealth(damage);
+                    attackAudio.Play();
                 }
                 // Päivitä viimeisimmän osuman aika
                 lastHitTime = Time.time;
