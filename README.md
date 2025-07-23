@@ -1,10 +1,10 @@
-#Rogue Dungeon
+# Rogue Dungeon
 * Based on Tank game by Niku Grönberg.
 * Author Artturi Laitakari.
 
 Rogue Dungeon is a dungeon crawler with a melee or shooter character.
 
-##Keyboard commands
+## Keyboard commands
 * arrow keys to move
 * control to shoot
 * tab to change view
